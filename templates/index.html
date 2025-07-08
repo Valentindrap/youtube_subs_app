@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Extractor de Subtítulos de YouTube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f7f7f7;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+        }
+        button {
+            padding: 10px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Extraer Subtítulos Automáticos</h1>
+    <form action="/extract" method="post">
+        <input type="text" name="youtube_url" placeholder="Pega aquí el enlace de YouTube" required>
+        <button type="submit">Descargar Subtítulos</button>
+    </form>
+</body>
+</html>
