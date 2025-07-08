@@ -3,12 +3,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import NoTranscriptFound, TranscriptsDisabled
 import re
 import os
-import ssl
-import urllib3
-
-# ⚠️ Desactivar advertencias de SSL y verificación
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-ssl._create_default_https_context = ssl._create_unverified_context
 
 app = Flask(__name__)
 
@@ -16,22 +10,22 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/extract', methods=['POST'])
+@app.route('/extract', methods=['GET', 'POST'])
 def extract():
-    url = request.form['youtube_url']
+    if request.method == 'POST':
+        url = request.form['youtube_url']
+    else:
+        url = request.args.get('youtube_url')
+
+    if not url:
+        return "<p>No se proporcionó la URL.</p>"
+
     video_id = extract_video_id(url)
 
     try:
-        # Usar proxy gratuito
-        proxies = {
-            'http': 'http://38.147.98.190:8080',
-            'https': 'http://38.147.98.190:8080'
-        }
-
         transcript = YouTubeTranscriptApi.get_transcript(
             video_id,
-            languages=['es', 'en', 'es-ES', 'en-US'],
-            proxies=proxies
+            languages=['es', 'en', 'es-ES', 'en-US']
         )
 
         plain_text = "\n".join([entry['text'] for entry in transcript])
@@ -48,6 +42,7 @@ def extract():
     except Exception as e:
         return f"<p>Error inesperado: {e}</p>"
 
+
 def extract_video_id(url):
     patterns = [
         r"youtu\.be/([^\?&]+)",
@@ -60,7 +55,7 @@ def extract_video_id(url):
             return match.group(1)
     raise ValueError("No se pudo extraer el ID del video")
 
-# Para desarrollo local o compatibilidad con Render / Railway
+# Para desarrollo local o Railway
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

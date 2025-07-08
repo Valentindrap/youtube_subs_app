@@ -1,48 +1,310 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Extractor de Subtítulos de YouTube</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            background: #f7f7f7;
-            border-radius: 10px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            font-size: 1rem;
-        }
-        button {
-            padding: 10px;
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #004999;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Extractor de Subtítulos de YouTube</title>
+  <style>
+    :root {
+      --main-color: #0066cc;
+      --accent-color: #004999;
+      --bg-color: #f0f4f8;
+      --text-color: #333;
+    }
+
+    * {
+      cursor: url('https://cur.cursors-4u.net/others/oth-7/oth665.cur'), auto;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1f5fe, #f0f4f8);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+    }
+
+    .container {
+      background: white;
+      max-width: 500px;
+      width: 90%;
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      color: var(--main-color);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: border 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--main-color);
+      outline: none;
+    }
+
+    button {
+      padding: 12px;
+      background-color: var(--main-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--accent-color);
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .footer a {
+      color: var(--main-color);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .loader-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid var(--main-color);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .history {
+      margin-top: 20px;
+      text-align: left;
+      background: #f7f7f7;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      color: var(--accent-color);
+    }
+
+    .history ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .history li {
+      margin: 6px 0;
+      word-break: break-all;
+      font-size: 0.95rem;
+    }
+
+    .legal {
+      margin-top: 25px;
+      background: #e8f5fe;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: var(--main-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal button:hover {
+      background-color: var(--accent-color);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
-    <h1>Extraer Subtítulos Automáticos</h1>
-    <form action="/extract" method="post">
-        <input type="text" name="youtube_url" placeholder="Pega aquí el enlace de YouTube" required>
-        <button type="submit">Descargar Subtítulos</button>
+  <div class="loader-overlay" id="loader">
+    <div class="loader"></div>
+  </div>
+
+  <div class="modal-overlay" id="errorModal">
+    <div class="modal">
+      <h3>¡Oops!</h3>
+      <p>No pudimos descargar los subtítulos. Verifica el enlace o inténtalo más tarde.</p>
+      <button onclick="closeErrorModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Extraer Subtítulos Automáticos de YouTube</h1>
+    <form id="subtitleForm">
+      <input type="text" name="youtube_url" id="youtubeUrl" placeholder="Pega aquí el enlace de YouTube" required>
+      <button type="submit">Descargar Subtítulos</button>
     </form>
+
+    <div class="history" id="history">
+      <h2>Historial de Descargas</h2>
+      <ul id="historyList"></ul>
+    </div>
+
+    <div class="legal">
+      ⚠️ Esta herramienta es solo para descargar subtítulos de YouTube con fines académicos y educativos. ¡Disfruten acortando su tiempo, papus! ❤️
+    </div>
+
+    <div class="footer">
+      Creado por <strong>Valentín Drapanti</strong> — <a href="https://github.com/valentindrap" target="_blank">@valentindrap en GitHub</a>
+    </div>
+  </div>
+
+  <iframe id="hiddenFrame" style="display:none;"></iframe>
+
+  <script>
+    const loader = document.getElementById('loader');
+    const form = document.getElementById('subtitleForm');
+    const historyList = document.getElementById('historyList');
+    const youtubeInput = document.getElementById('youtubeUrl');
+    const errorModal = document.getElementById('errorModal');
+
+    function showLoader() {
+      loader.style.display = 'flex';
+    }
+
+    function hideLoader() {
+      loader.style.display = 'none';
+    }
+
+    function openErrorModal() {
+      errorModal.style.display = 'flex';
+    }
+
+    function closeErrorModal() {
+      errorModal.style.display = 'none';
+    }
+
+    function saveToHistory(url) {
+      let history = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+      if (!history.includes(url)) {
+        history.push(url);
+        localStorage.setItem('downloadHistory', JSON.stringify(history));
+      }
+      renderHistory();
+    }
+
+    function renderHistory() {
+      let history = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+      historyList.innerHTML = '';
+      history.reverse().forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        historyList.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const url = youtubeInput.value.trim();
+      if (!url) return;
+
+      showLoader();
+
+      const iframe = document.getElementById('hiddenFrame');
+      iframe.src = `/extract?youtube_url=${encodeURIComponent(url)}`;
+
+      saveToHistory(url);
+
+      // Intentar detectar fallo (si en 5 segundos no descarga, mostramos error)
+      setTimeout(() => {
+        hideLoader();
+        youtubeInput.value = '';
+        openErrorModal();
+      }, 5000);
+    });
+
+    document.addEventListener('DOMContentLoaded', renderHistory);
+  </script>
 </body>
 </html>
