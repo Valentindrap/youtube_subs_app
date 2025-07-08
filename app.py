@@ -6,32 +6,34 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')
-
 @app.route('/extract', methods=['POST'])
 def extract():
     url = request.form['youtube_url']
     video_id = extract_video_id(url)
 
     try:
+        # Usar proxy gratuito
+        proxies = {
+            'http': 'http://38.147.98.190:8080',
+            'https': 'http://38.147.98.190:8080'
+        }
+
         transcript = YouTubeTranscriptApi.get_transcript(
             video_id,
-            languages=['es', 'en', 'es-ES', 'en-US', 'en-GB']
+            languages=['es', 'en', 'es-ES', 'en-US'],
+            proxies=proxies
         )
+
         plain_text = "\n".join([entry['text'] for entry in transcript])
         return Response(
             plain_text,
             mimetype='text/plain',
             headers={"Content-Disposition": "attachment;filename=subtitulos.txt"}
         )
-    except NoTranscriptFound:
-        return "<p>No se encontraron subtítulos en los idiomas soportados.</p>"
-    except TranscriptsDisabled:
-        return "<p>El autor del video desactivó los subtítulos.</p>"
+
     except Exception as e:
         return f"<p>Error inesperado: {e}</p>"
+
 
 def extract_video_id(url):
     patterns = [
